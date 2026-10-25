@@ -1,138 +1,276 @@
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#172554">
-<title>AI Tech News</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101827">
+<title>AI・テックニュース</title>
 <style>
-body {
-  margin: 0;
-  background: #f3f5f9;
-  color: #172033;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-}
-header {
-  background: #172554;
-  color: white;
-  padding: 24px 18px;
-}
-header h1 { margin: 0 0 8px; font-size: 25px; }
-header p { margin: 0; font-size: 14px; }
-main { padding: 16px; max-width: 700px; margin: auto; }
-button {
-  background: #1d4ed8;
-  color: white;
-  border: 0;
-  border-radius: 10px;
-  padding: 12px 16px;
-  font-size: 15px;
-}
-#status { font-size: 14px; color: #526078; }
-article {
-  background: white;
-  border-radius: 12px;
-  padding: 16px;
-  margin: 12px 0;
-  box-shadow: 0 2px 8px #0000000a;
-}
-article h2 { font-size: 17px; margin: 0 0 10px; }
-article a { color: #173ea5; text-decoration: none; }
-.meta { color: #68758a; font-size: 12px; }
+:root{color-scheme:light;--bg:#f3f5f9;--card:#fff;--ink:#172033;--muted:#687386;--line:#e3e8f0;--accent:#3459e6;--dark:#101827}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;line-height:1.55}
+header{background:var(--dark);color:#fff;padding:24px 18px 20px;padding-top:calc(24px + env(safe-area-inset-top));border-radius:0 0 22px 22px}
+.wrap{max-width:760px;margin:0 auto}
+.eyebrow{font-size:12px;letter-spacing:.12em;color:#b7c5ff;font-weight:700}
+h1{font-size:25px;line-height:1.25;margin:8px 0}
+header p{margin:8px 0 0;color:#c6cfdd;font-size:13px}
+main{max-width:760px;margin:0 auto;padding:16px 14px 40px}
+.toolbar{display:flex;gap:8px;margin-bottom:12px}
+.search{min-width:0;flex:1;padding:12px 13px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:15px}
+.refresh{border:0;border-radius:12px;padding:0 15px;background:var(--accent);color:#fff;font-size:14px;font-weight:700}
+.refresh:disabled{opacity:.6}
+.filters{display:flex;gap:8px;overflow-x:auto;padding:2px 0 12px}
+.chip{white-space:nowrap;border:1px solid var(--line);background:#fff;color:#536075;border-radius:999px;padding:8px 13px;font-size:13px}
+.chip.active{background:#e8edff;border-color:#c9d4ff;color:#2344c6;font-weight:700}
+.status{font-size:13px;color:var(--muted);padding:4px 2px 12px}
+.story{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px;margin-bottom:10px;box-shadow:0 2px 8px rgba(20,35,60,.025)}
+.meta{display:flex;flex-wrap:wrap;gap:7px;align-items:center;color:var(--muted);font-size:12px;margin-bottom:7px}
+.source{font-weight:700;color:#3459e6}
+.story h2{font-size:16px;line-height:1.5;margin:0 0 8px}
+.story h2 a{color:var(--ink);text-decoration:none}
+.story h2 a:active{color:var(--accent)}
+.summary{font-size:13px;color:#596477;margin:0 0 11px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.read{font-size:13px;font-weight:700;color:var(--accent);text-decoration:none}
+.empty{background:#fff;border:1px dashed #cbd3e1;border-radius:14px;padding:22px;text-align:center;color:var(--muted);font-size:14px}
+.foot{font-size:11px;color:#7a8494;line-height:1.6;margin:20px 3px}
+.spinner{display:inline-block;width:12px;height:12px;border:2px solid #c8d1e0;border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px;margin-right:5px}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
 <header>
-  <h1>AI Tech News</h1>
-  <p>AI・テクノロジーの最新ニュース</p>
+  <div class="wrap">
+    <div class="eyebrow">PERSONAL NEWS READER</div>
+    <h1>AI・テックニュース</h1>
+    <p>AI、人工知能、テクノロジーの最新記事をまとめてチェック</p>
+  </div>
 </header>
+
 <main>
-  <button id="refresh">ニュースを更新</button>
-  <p id="status">ニュースを読み込んでいます…</p>
-  <section id="news"></section>
+  <div class="toolbar">
+    <input id="search" class="search" type="search" placeholder="キーワードで検索" aria-label="キーワードで検索">
+    <button id="refresh" class="refresh">再読み込み</button>
+  </div>
+
+  <div class="filters" id="filters">
+    <button class="chip active" data-filter="all">すべて</button>
+    <button class="chip" data-filter="AI">AI・人工知能</button>
+    <button class="chip" data-filter="Tech">テクノロジー</button>
+    <button class="chip" data-filter="Dev">開発・IT</button>
+  </div>
+
+  <div class="status" id="status" role="status">ニュースを読み込む準備をしています…</div>
+  <section id="news" aria-live="polite"></section>
+  <p class="foot">記事の見出し・概要は各配信元のRSSから取得しています。見出しをタップすると記事を開きます。ニュース取得には無料の公開プロキシを利用します。外部サービスの状況により、一時的に読み込めない場合があります。</p>
 </main>
+
 <script>
-const query =
-  'https://news.google.com/rss/search?q=' +
-  encodeURIComponent('AI OR 人工知能 OR テクノロジー') +
-  '&hl=ja&gl=JP&ceid=JP:ja';
+(function(){
+  const feeds = [
+    {name:'TechCrunch AI',url:'https://techcrunch.com/category/artificial-intelligence/feed/',category:'AI'},
+    {name:'The Verge AI',url:'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml',category:'AI'},
+    {name:'BBC Technology',url:'https://feeds.bbci.co.uk/news/technology/rss.xml',category:'Tech'},
+    {name:'GitHub Blog',url:'https://github.blog/feed/',category:'Dev'}
+  ];
 
-async function loadNews() {
-  const status = document.getElementById('status');
-  const news = document.getElementById('news');
-  const button = document.getElementById('refresh');
+  const newsEl = document.getElementById('news');
+  const statusEl = document.getElementById('status');
+  const searchEl = document.getElementById('search');
+  const refreshBtn = document.getElementById('refresh');
 
-  button.disabled = true;
-  status.textContent = 'ニュースを取得しています…';
-  news.replaceChildren();
+  let allItems = [];
+  let activeFilter = 'all';
+  let loading = false;
 
-  try {
-          const data = await new Promise((resolve, reject) => {
-        const callbackName = 'rss2jsonCallback';
-        const script = document.createElement('script');
-        const cleanup = () => {
-          clearTimeout(timer);
-          delete window[callbackName];
-          script.remove();
-        };
-        const timer = setTimeout(() => {
-          cleanup();
-          reject(new Error('ニュース取得がタイムアウトしました'));
-        }, 15000);
-        window[callbackName] = (result) => {
-          cleanup();
-          resolve(result);
-        };
-        script.onerror = () => {
-          cleanup();
-          reject(new Error('ニュース配信サービスに接続できません'));
-        };
-        script.src =
-          'https://api.rss2json.com/v1/api.json?callback=' +
-          callbackName +
-          '&rss_url=' +
-          encodeURIComponent(query);
-
-        document.body.appendChild(script);
-      });
-    if (data.status !== 'ok') throw new Error('取得エラー');
-
-    data.items.slice(0, 30).forEach(item => {
-      const card = document.createElement('article');
-      const heading = document.createElement('h2');
-      const link = document.createElement('a');
-      const meta = document.createElement('p');
-
-      link.textContent = item.title;
-      link.href = item.link;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-
-      heading.appendChild(link);
-      meta.className = 'meta';
-      meta.textContent =
-        (item.pubDate || '') +
-        (item.author ? ' ・ ' + item.author : '');
-
-      card.append(heading, meta);
-      news.appendChild(card);
-    });
-
-    status.textContent =
-      data.items.length + '件のニュースを取得しました。';
-  } catch (error) {
-    status.textContent =
-    'エラー：' + error.message;
-  } finally {
-    button.disabled = false;
+  function cleanText(value){
+    const d = new DOMParser().parseFromString(value || '', 'text/html');
+    return (d.body.textContent || '').replace(/\s+/g, ' ').trim();
   }
-}
 
-document.getElementById('refresh').addEventListener(
-  'click', loadNews
-);
-loadNews();
+  function safeUrl(value){
+    try {
+      const u = new URL(value);
+      return (u.protocol === 'https:' || u.protocol === 'http:') ? u.href : '';
+    } catch(e) {
+      return '';
+    }
+  }
+
+  function parseFeed(xml, feed){
+    const doc = new DOMParser().parseFromString(xml, 'application/xml');
+    if(doc.querySelector('parsererror')){
+      throw new Error('RSSの形式を読み取れません');
+    }
+
+    const nodes = Array.from(doc.querySelectorAll('item, entry'));
+
+    return nodes.map(node => {
+      const title = cleanText(node.querySelector('title')?.textContent || '');
+      const linkNode = node.querySelector('link');
+      const link = safeUrl(linkNode?.getAttribute('href') || linkNode?.textContent || '');
+      const dateText = node.querySelector('pubDate, published, updated, date')?.textContent || '';
+      const description = node.querySelector('description, summary, content\\:encoded, content')?.textContent || '';
+
+      return {
+        title,
+        link,
+        date: dateText ? new Date(dateText) : null,
+        summary: cleanText(description),
+        source: feed.name,
+        category: feed.category
+      };
+    }).filter(item => item.title && item.link);
+  }
+
+  async function fetchFeed(feed){
+    const target = 'https://proxy.cors.dev/' + feed.url;
+    const response = await fetch(target, {credentials:'omit'});
+
+    if(!response.ok){
+      const reason = response.headers.get('X-Cors-Error') || ('HTTP ' + response.status);
+      throw new Error(reason);
+    }
+
+    return parseFeed(await response.text(), feed);
+  }
+
+  function formatDate(date){
+    if(!date || Number.isNaN(date.getTime())) return '';
+    return new Intl.DateTimeFormat('ja-JP', {
+      month:'numeric',
+      day:'numeric',
+      hour:'2-digit',
+      minute:'2-digit'
+    }).format(date);
+  }
+
+  function render(){
+    const term = searchEl.value.trim().toLocaleLowerCase();
+
+    const items = allItems.filter(item =>
+      (activeFilter === 'all' || item.category === activeFilter) &&
+      (!term || (item.title + ' ' + item.summary + ' ' + item.source).toLocaleLowerCase().includes(term))
+    );
+
+    newsEl.replaceChildren();
+
+    if(!items.length){
+      const p = document.createElement('div');
+      p.className = 'empty';
+      p.textContent = allItems.length
+        ? '条件に合う記事がありません。検索語やカテゴリを変えてみてください。'
+        : 'ニュースをまだ取得できていません。「再読み込み」を押してもう一度お試しください。';
+      newsEl.appendChild(p);
+      return;
+    }
+
+    items.forEach(item => {
+      const article = document.createElement('article');
+      article.className = 'story';
+
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+
+      const source = document.createElement('span');
+      source.className = 'source';
+      source.textContent = item.source;
+      meta.appendChild(source);
+
+      const category = document.createElement('span');
+      category.textContent = item.category === 'AI'
+        ? 'AI・人工知能'
+        : item.category === 'Dev' ? '開発・IT' : 'テクノロジー';
+      meta.appendChild(category);
+
+      const date = document.createElement('span');
+      date.textContent = formatDate(item.date);
+      if(date.textContent) meta.appendChild(date);
+
+      const h = document.createElement('h2');
+      const a = document.createElement('a');
+      a.href = item.link;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.textContent = item.title;
+      h.appendChild(a);
+
+      article.append(meta, h);
+
+      if(item.summary){
+        const summary = document.createElement('p');
+        summary.className = 'summary';
+        summary.textContent = item.summary;
+        article.appendChild(summary);
+      }
+
+      const read = document.createElement('a');
+      read.className = 'read';
+      read.href = item.link;
+      read.target = '_blank';
+      read.rel = 'noopener noreferrer';
+      read.textContent = '記事を読む ↗';
+      article.appendChild(read);
+
+      newsEl.appendChild(article);
+    });
+  }
+
+  async function loadNews(){
+    if(loading) return;
+
+    loading = true;
+    refreshBtn.disabled = true;
+    refreshBtn.textContent = '取得中…';
+    statusEl.innerHTML = '<span class="spinner"></span>ニュースを取得しています…';
+
+    try {
+      const results = await Promise.allSettled(feeds.map(fetchFeed));
+      const succeeded = results
+        .filter(result => result.status === 'fulfilled')
+        .flatMap(result => result.value);
+      const failures = results.filter(result => result.status === 'rejected').length;
+
+      const unique = new Map();
+      succeeded.forEach(item => {
+        if(!unique.has(item.link)) unique.set(item.link, item);
+      });
+
+      allItems = Array.from(unique.values()).sort((a, b) =>
+        (b.date && !Number.isNaN(b.date.getTime()) ? b.date.getTime() : 0) -
+        (a.date && !Number.isNaN(a.date.getTime()) ? a.date.getTime() : 0)
+      );
+
+      if(allItems.length){
+        statusEl.textContent = '取得できた記事：' + allItems.length + '件' +
+          (failures ? '（一部の配信元に接続できませんでした）' : '') +
+          ' · 更新 ' + new Date().toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit'});
+      } else {
+        statusEl.textContent = 'ニュースを取得できませんでした。通信環境を確認して、少し時間をおいて再読み込みしてください。';
+      }
+
+      render();
+    } catch(error) {
+      statusEl.textContent = 'エラー：' + error.message;
+    } finally {
+      loading = false;
+      refreshBtn.disabled = false;
+      refreshBtn.textContent = '再読み込み';
+    }
+  }
+
+  document.getElementById('filters').addEventListener('click', e => {
+    const b = e.target.closest('button[data-filter]');
+    if(!b) return;
+    activeFilter = b.dataset.filter;
+    document.querySelectorAll('.chip').forEach(x => x.classList.toggle('active', x === b));
+    render();
+  });
+
+  searchEl.addEventListener('input', render);
+  refreshBtn.addEventListener('click', loadNews);
+  loadNews();
+})();
 </script>
 </body>
 </html>
