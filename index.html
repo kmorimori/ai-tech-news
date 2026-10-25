@@ -72,7 +72,9 @@ async function loadNews() {
       'https://api.rss2json.com/v1/api.json?rss_url=' +
       encodeURIComponent(query);
 
-    const response = await fetch(api);
+    const response = await fetch(
+  'https://proxy.cors.dev/' + api
+  );
     if (!response.ok) throw new Error('通信エラー');
 
     const data = await response.json();
