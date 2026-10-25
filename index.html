@@ -103,7 +103,7 @@ async function loadNews() {
       data.items.length + '件のニュースを取得しました。';
   } catch (error) {
     status.textContent =
-      '取得できませんでした。通信状況や配信元を確認し、再度お試しください。';
+    'エラー：' + error.message;
   } finally {
     button.disabled = false;
   }
