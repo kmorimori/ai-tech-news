@@ -75,7 +75,7 @@ async function loadNews() {
     const response = await fetch(
   'https://proxy.cors.dev/' + api
   );
-    if (!response.ok) throw new Error('通信エラー');
+    if (!response.ok) throw new Error('HTTP ' + response.status)
 
     const data = await response.json();
     if (data.status !== 'ok') throw new Error('取得エラー');
