@@ -198,7 +198,7 @@ button{font:inherit;cursor:pointer}
       summary.textContent = item.translatedSummary || item.summary || '概要は配信元の記事でご確認ください。';
       card.appendChild(summary);
 
-      const isJapanese = /[ぁ-んァ-ヶ一-龠]/.test(item.title + ' ' + item.summary);
+      const isJapanese = /[ぁ-んァ-ヶ一-龠]/.test(item.title);
       if(!isJapanese){
         const translateBtn = document.createElement('button');
         translateBtn.className = 'translate-btn';
